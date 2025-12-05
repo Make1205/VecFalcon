@@ -11,9 +11,9 @@ Directory structure:
 - `ref/`: reference implementation, derived from the public domain C-FN-DSA project (https://github.com/pornin/c-fn-dsa at commit id 96e3b92)
 
 The three target platforms used in our paper:
-- The Intel i7-11700K CPU (Rocket Lake microarchitecture) operating at 3.6 GHz. Hyper-Threading and Turbo Boost are disabled.
-- The Cortex-A72 processor in Raspberry Pi 4B running at 1.5 GHz.
-- The SpacemiT X60 core in Milk-V Jupiter operating at 2.0 GHz, supporting the RV64GCBV instruction set with vector extension v1.0 (VLEN = 256 bits) and bit-manipulation extension v1.0.0.
+- The Intel i7-11700K CPU (Rocket Lake microarchitecture) operating at 3.6 GHz. Hyper-Threading and Turbo Boost are disabled. Ubuntu 24.04 with GCC 13.3.0.
+- The Cortex-A72 processor in Raspberry Pi 4B running at 1.5 GHz. Ubuntu 20.04 with Clang 10.0.0.
+- The SpacemiT X60 core in Milk-V Jupiter operating at 2.0 GHz, supporting the RV64GCBV instruction set with vector extension v1.0 (VLEN = 256 bits) and bit-manipulation extension v1.0.0. Bianbu 1.0.15 (Linux kernel 6.1.15) with GCC 13.2.0. The Bianbu 1.0.15 firmware can be found at [jupiter-bianbu-build v1.0.15](https://github.com/milkv-jupiter/jupiter-bianbu-build/releases/tag/v1.0.15).
 
 To precisely reproduce the performance data reported in our paper, ensure your hardware and software environment is as consistent as possible with our experimental environment (Section 2 of our paper).
 
@@ -23,6 +23,24 @@ For example, in the `profiling/` directory:
 - On the ARM Cortex-A72, you can compile using: `make all -j -f Makefile.armv8a`
 - On the SpacemiT X60, you can compile using: `make all -j -f Makefile.rv`
 
+## Regarding obtaining CPU clock cycles
+
+### Summary
+
+On the three platforms mentioned in this project, you will need to perform some configuration to obtain the CPU clock cycle. You can find detailed explanations in the comments section of `ref/speed_fndsa.c`:
+
+- For Intel CPU: Run the command as root: `echo 2 > /sys/bus/event_source/devices/cpu/rdpmc` and run `sysctl -w kernel.perf_event_paranoid=-1`
+- For AArch64: Follow the instructions at https://github.com/jerinjacobk/armv8_pmu_cycle_counter_el0
+- For RISC-V: Simply put, you need to run the executable file using `perf stat ./speed_fndsa`. For example, you can find the command in `opt/Makefile.rv`: `perf stat ./out/speed_fndsa_rv64gc >>speed_fndsa_x60.txt 2>/dev/null`
+
+### For RISC-V
+
+If you are using the Bianbu 1.0.15 mentioned above, you don't need to worry about this issue. However, if you are using a newer version, you may encounter the following problem.
+
+Regarding obtaining CPU clock cycles on RISC-V, in `opt/speed_fndsa.c` you will see this code: `__asm__ __volatile__("rdcycle %0" : "=r"(x));` This will produce an error in newer Linux kernel versions (e.g., 6.6.63) because `rdcycle` causes "Illegal Instruction", see https://forum.banana-pi.org/t/how-to-enable-rdinstret-and-rdcycle-on-bananapi-bpi-f3/19212 and https://github.com/camel-cdr/rvv-bench-results/issues/1. Therefore, it is recommended that you use the `perf` tool to obtain the CPU clock cycles.
+
+In fact, the relevant speed tests under `profiling/` in this project are based on the `perf` tool, see `profiling/cpucycles.c`. Therefore, if you need to modify the method for obtaining clock cycles in `opt/speed_fndsa.c`, you can refer to the relevant speed tests in `profiling/`.
+
 ## Reproducing the Results in the Paper
 
 ### Table 3
@@ -30,6 +48,8 @@ For example, in the `profiling/` directory:
 To reproduce "Table 3: The performance profiling of Falcon-1024’s signature generation", you first need to install `gperftools`, which can be done with the following commands:
 
 ```bash
+# Install the dependencies
+sudo apt install build-essential autoconf libtool
 git clone https://github.com/gperftools/gperftools.git
 cd gperftools
 ./autogen.sh
@@ -50,6 +70,8 @@ make run_profiling
 You will then get multiple txt files, such as `gperf_sign_core_1024_avx2.txt`, which contain the profiling results of the AVX2 version.
 
 For the SpacemiT X60, the steps are similar: first install `gperftools` and `pprof`, then run `make run_profiling -f Makefile.rv` in the `ref/` directory.
+
+The `help/process_gperf.ipynb` file might be helpful in processing the above profiling results.
 
 ### Table 4 and Table 5
 
@@ -154,3 +176,7 @@ nm out/speed_fndsa_avx2 --print-size --size-sort --radix=d | \
 awk '{$1=""}1' | \
 awk '{sum+=$1 ; print $0} END{print "Total size =", sum, "bytes =", sum/1024, "kB"}' > speed_fndsa_avx2_symbols_size.txt
 ```
+
+## Acknowledgement
+
+We thank the artifact evaluation reviewers of TCHES 2026 for their valuable feedback.
