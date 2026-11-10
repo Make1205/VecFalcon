@@ -1,0 +1,160 @@
+[
+  {
+    "sign_dispatch_calls": [
+      0,
+      0,
+      11
+    ],
+    "set": "512",
+    "build": "ref",
+    "clean_before": false,
+    "iterations": 11,
+    "pk_includes_ntt": true,
+    "hooks": [
+      11,
+      0,
+      1,
+      1,
+      2,
+      2,
+      0
+    ],
+    "cycles": {
+      "PKDecode": 9489,
+      "CoreVerify": 51947,
+      "VerifyInstrumented": 61281,
+      "SignInstrumented": 604967
+    }
+  },
+  {
+    "sign_dispatch_calls": [
+      11,
+      1,
+      11
+    ],
+    "set": "512",
+    "build": "avx2",
+    "clean_before": false,
+    "iterations": 11,
+    "pk_includes_ntt": true,
+    "hooks": [
+      11,
+      0,
+      1,
+      1,
+      2,
+      2,
+      1
+    ],
+    "cycles": {
+      "PKDecode": 2755,
+      "CoreVerify": 61463,
+      "VerifyInstrumented": 64817,
+      "DispatchDetect": 22801,
+      "SignInstrumented": 568931,
+      "SignDispatchDetect": 24595
+    }
+  },
+  {
+    "sign_dispatch_calls": null,
+    "set": "512",
+    "build": "avx2",
+    "clean_before": true,
+    "iterations": 11,
+    "pk_includes_ntt": true,
+    "hooks": [
+      11,
+      1,
+      1,
+      1,
+      2,
+      2,
+      1
+    ],
+    "cycles": {
+      "PKDecode": 2703,
+      "CoreVerify": 59955,
+      "VerifyInstrumented": 62815,
+      "DispatchDetect": 21995
+    }
+  },
+  {
+    "sign_dispatch_calls": [
+      0,
+      0,
+      11
+    ],
+    "set": "1024",
+    "build": "ref",
+    "clean_before": false,
+    "iterations": 11,
+    "pk_includes_ntt": true,
+    "hooks": [
+      11,
+      0,
+      1,
+      1,
+      2,
+      2,
+      0
+    ],
+    "cycles": {
+      "PKDecode": 18849,
+      "CoreVerify": 101035,
+      "VerifyInstrumented": 119833,
+      "SignInstrumented": 1109549
+    }
+  },
+  {
+    "sign_dispatch_calls": [
+      11,
+      1,
+      11
+    ],
+    "set": "1024",
+    "build": "avx2",
+    "clean_before": false,
+    "iterations": 11,
+    "pk_includes_ntt": true,
+    "hooks": [
+      11,
+      0,
+      1,
+      1,
+      2,
+      2,
+      1
+    ],
+    "cycles": {
+      "PKDecode": 5329,
+      "CoreVerify": 94717,
+      "VerifyInstrumented": 99995,
+      "DispatchDetect": 22983,
+      "SignInstrumented": 967485,
+      "SignDispatchDetect": 25609
+    }
+  },
+  {
+    "sign_dispatch_calls": null,
+    "set": "1024",
+    "build": "avx2",
+    "clean_before": true,
+    "iterations": 11,
+    "pk_includes_ntt": true,
+    "hooks": [
+      11,
+      1,
+      1,
+      1,
+      2,
+      2,
+      1
+    ],
+    "cycles": {
+      "PKDecode": 5225,
+      "CoreVerify": 94509,
+      "VerifyInstrumented": 99709,
+      "DispatchDetect": 22151
+    }
+  }
+]

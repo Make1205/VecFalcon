@@ -237,3 +237,79 @@ compiler contraction (15 FMA -> 0; equality restored), not a source defect.
 All runs now audit benchmark-owned objects and the linked driver with objdump
 and save *-fma-audit.json. Missing objdump fails preflight: apt install binutils.
 Both hardware ref and AVX2, plus supplemental soft, now always use the flag. No explicit x86 FMA intrinsics were found; every FMA count must be zero. VecFalcon is backup; c-fn-dsa is the paper primary. Previous optional FP_CONTRACT descriptions are superseded.
+
+
+## 2026-11-10: native ref ISA and Falcon performance diagnosis
+
+Main public-API timing is unchanged. `verify_profile.c` is a separate bench-only
+linker-hook diagnostic; it never patches algorithm sources, caches CPU detection,
+or bypasses the public API. `profile_verify.py RESULT_DIRECTORY` reuses that
+result's original algorithm objects and adds VERIFY_DIAGNOSTICS.md, a CSV/JSON
+breakdown and static ISA inventory. Existing successful FULL main numbers remain
+valid; profiling them does not require rerunning the main benchmark. Keep the
+result's work/source directory. Use the same GCC version as the original build.
+
+Ref explicitly selects hardware floating point/SSE2 and disables AVX ISA generation
+(-mno-avx -mno-avx2 -mno-avx512f -mno-fma). Counting algorithm objects, not just
+the executable, finds ZERO YMM instructions in ref. The executable has eight
+YMM instructions in unmodified speed_print.o (statistics after timing), which
+are not an AVX2 algorithm backend. See *-isa.json for separate counts and sites.
+
+Both variants start Verify with serialized public keys and perform the same
+logical decoding, hashing and verification. AVX2 does not pre-expand extra key
+material. Its public entry calls fndsa_has_avx2() without caching. util.c uses
+__get_cpuid_count(7,0), which emits two serializing CPUID instructions (maximum
+leaf query then leaf 7), plus XGETBV. The scalar build compiles this dispatch
+away. This is original library behavior, retained inside the main timing.
+
+The AVX2 algorithm objects have zero legacy SSE instructions and include
+vzeroupper at returns; the scalar objects use legacy SSE and no AVX. Therefore
+there is no evidence for an internal legacy-SSE/AVX transition as the principal
+Verify penalty. Static counts exclude shared libraries and are not dynamic
+execution counts. A second diagnostic inserts vzeroupper BEFORE the timed call;
+it did not consistently reduce the QUICK measurements. These observations do
+not prove all platform/library transition overhead is absent.
+
+PK timing continuously brackets original mqpoly_decode and the initial key
+representation preparation. Remaining core includes dispatch, public-key/message
+hashing, signature decoding and verification arithmetic. Hooks add timing and
+call overhead. Per-sample total minus PK yields core, then each median is taken;
+medians need not add. These are diagnostics, not replacement publication numbers.
+The Sign diagnostic also reports CPU-detection calls per fresh-key signature.
+
+Cloud tests use QUICK=1 only. CPUID is particularly expensive on this cloud CPU:
+about 23-24 thousand ticks per c-fn-dsa AVX2 Verify. This constant offset is
+consistent with the user's 25.4k/23.1k gaps for n=512/1024, but is NOT a measurement
+of the user's CPU. Run the diagnostic locally before assigning its exact share.
+No universal AVX2 speedup or SSE-transition explanation is inferred from QUICK.
+
+Local command (after fetching bench; select an existing successful FULL result):
+
+```bash
+python3 bench/profile_verify.py bench/results/<FULL-directory>
+```
+
+A new `bash bench/run.sh` also includes these diagnostics automatically. Ref/AVX2
+byte equality and cross-verification remain mandatory. All variants retain
+-ffp-contract=off and the zero-FMA audit. c-fn-dsa is the paper's primary Falcon
+measurement; VecFalcon is the alternative implementation.
+
+This older version stores ordinary polynomial public keys; BOTH backends include
+an NTT after decode/internal conversion, and the PK diagnostic includes it.
+Ref hashes PK before decode, AVX2 hashes it later; logical work is equivalent.
+Cloud QUICK n=512 ref/AVX2 PK = 9.047/2.651k, core = 50.179/59.279k;
+n=1024 PK = 19.291/5.355k, core = 99.631/98.461k (20261110T104701.314044Z).
+Ref algorithm YMM=0, AVX2 algorithm YMM=11976 and legacy SSE=0.
+The optimized signer still uses many 128-bit hardware FP operations. Its vector
+Gaussian sampler changes RNG batching/rejection transcripts; SHAKE256X4 and CPU
+dispatch are also involved. With compiler FP contraction disabled in both builds,
+AVX2 is not guaranteed faster. The observed 1024 Sign slowdown cannot be assigned
+to one cause from static ISA counts: use the appended Sign dispatch diagnostic
+on the same machine. No signature algorithm or sampling logic is altered.
+
+Integrated QUICK Sign dispatch probe (20261110T132022.979908Z): AVX2 performs
+one CPU-detection call/sign for both degrees, costing 24.595/25.609k cloud ticks;
+ref performs zero. AVX2 was faster in this QUICK corpus, so this does not
+reproduce the user's 1024 slowdown or establish its full cause. Local profiling
+of the successful FULL build is needed to quantify dispatch versus kernel/RNG
+variation on i7-10700K. The 11-sample cloud result is not a speed comparison.

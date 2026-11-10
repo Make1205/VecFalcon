@@ -1,0 +1,27 @@
+$ /workspace/VecFalcon/bench/results/20261110T132022.979908Z/work/512-avx2/verify_profile 11
+PROFILE_META 11 0 1 1 2 2 1
+PKDecode
+median: 2755 cycles/ticks
+average: 3371 cycles/ticks
+
+CoreVerify
+median: 61463 cycles/ticks
+average: 62429 cycles/ticks
+
+VerifyInstrumented
+median: 64817 cycles/ticks
+average: 65802 cycles/ticks
+
+DispatchDetect
+median: 22801 cycles/ticks
+average: 22593 cycles/ticks
+
+SignInstrumented
+median: 568931 cycles/ticks
+average: 1555040 cycles/ticks
+
+SignDispatchDetect
+median: 24595 cycles/ticks
+average: 34777 cycles/ticks
+
+SIGN_DISPATCH_CALLS 11 1 11

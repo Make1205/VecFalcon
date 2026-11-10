@@ -1,0 +1,14 @@
+$ /workspace/VecFalcon/bench/results/20261110T132022.979908Z/work/512-avx2/driver time 11
+META 512 12289 897 1281 666
+KeyGen
+median: 18674629 cycles/ticks
+average: 16638096 cycles/ticks
+
+Sign
+median: 541137 cycles/ticks
+average: 981551 cycles/ticks
+
+Verify
+median: 63725 cycles/ticks
+average: 66150 cycles/ticks
+
