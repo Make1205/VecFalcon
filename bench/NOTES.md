@@ -115,3 +115,9 @@ absolute coefficient magnitudes. It does not strip zero bytes heuristically.
 The native C API exposes only encoded keys; there is no reusable expanded-key
 sign API to report. Sign includes byte-key decoding/reconstruction and Verify
 includes byte public-key decoding exactly as requested.
+
+Before any algorithm build, the runner also compile/links a standard C
+header/runtime/libm probe. Failure reports apt package build-essential
+(including libc6-dev). Exact extra per-build flags are printed near the
+SUMMARY heading as well as retained in metadata and logs. This final
+preflight/report change leaves the measured driver and QUICK values unchanged.
