@@ -227,3 +227,13 @@ The unchanged speed_print object uses base -march=native and may be compiler
 auto-vectorized, including AVX instructions on the cloud CPU; this is post-
 measurement statistics outside the timed algorithm call, not selection of an
 AVX2 algorithm backend. No extra auto-vectorization suppression is used.
+
+
+## FP contraction policy update (2026-11-10)
+
+The shared rule in PROTOCOL.md now requires -ffp-contract=off for all actual
+floating-point builds. The local c-fn-dsa index-3461 mismatch was traced to
+compiler contraction (15 FMA -> 0; equality restored), not a source defect.
+All runs now audit benchmark-owned objects and the linked driver with objdump
+and save *-fma-audit.json. Missing objdump fails preflight: apt install binutils.
+Both hardware ref and AVX2, plus supplemental soft, now always use the flag. No explicit x86 FMA intrinsics were found; every FMA count must be zero. VecFalcon is backup; c-fn-dsa is the paper primary. Previous optional FP_CONTRACT descriptions are superseded.
