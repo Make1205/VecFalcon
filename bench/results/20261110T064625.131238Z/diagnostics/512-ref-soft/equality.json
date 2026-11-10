@@ -1,0 +1,14 @@
+{
+  "left": "/workspace/VecFalcon/bench/results/20261110T064625.131238Z/work/512-ref.vectors",
+  "right": "/workspace/VecFalcon/bench/results/20261110T064625.131238Z/work/512-soft.vectors",
+  "left_sha256": "e917a8daff43eb96b65b371d2b2ab3743e801233d99cb0ca4a8767d4070a3742",
+  "right_sha256": "e917a8daff43eb96b65b371d2b2ab3743e801233d99cb0ca4a8767d4070a3742",
+  "left_count": 100,
+  "right_count": 100,
+  "pk_equal": true,
+  "sk_equal": true,
+  "byte_equal": true,
+  "differing_signatures": 0,
+  "count_equal": true,
+  "first_difference": null
+}

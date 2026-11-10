@@ -1,5 +1,5 @@
 {
-  "scheme": "Falcon \u2014 VecFalcon (pre-standard FN-DSA API)",
+  "scheme": "Falcon backup — VecFalcon (older pre-standard FN-DSA)",
   "initial_commit": "61b326e9bb6afe2ea4927e7a25832e7a64485367",
   "tested_commit": "61b326e9bb6afe2ea4927e7a25832e7a64485367",
   "sets": [
@@ -20,10 +20,13 @@
             "-ffunction-sections",
             "-fdata-sections",
             "-DFNDSA_AVX2=0",
-            "-DFNDSA_SSE2=0",
-            "-fno-tree-vectorize",
-            "-fno-tree-slp-vectorize",
-            "-DBENCH_AVX=0"
+            "-DFNDSA_SSE2=1",
+            "-DBENCH_AVX=0",
+            "-msse2",
+            "-mno-avx",
+            "-mno-avx2",
+            "-mno-avx512f",
+            "-mno-fma"
           ],
           "sources": [
             "codec.c",
@@ -73,6 +76,57 @@
             "-mavx2",
             "-mno-avx512f",
             "-DBENCH_AVX=1"
+          ],
+          "sources": [
+            "codec.c",
+            "mq.c",
+            "sha3.c",
+            "sysrng.c",
+            "util.c",
+            "kgen.c",
+            "kgen_fxp.c",
+            "kgen_gauss.c",
+            "kgen_mp31.c",
+            "kgen_ntru.c",
+            "kgen_poly.c",
+            "kgen_zint31.c",
+            "sign.c",
+            "sign_core.c",
+            "sign_fpoly.c",
+            "sign_fpr.c",
+            "sign_sampler.c",
+            "vrfy.c"
+          ],
+          "extra_sources": [],
+          "libs": [
+            "-Wl,--gc-sections"
+          ],
+          "kat": [
+            {
+              "name": "kat",
+              "sources": [
+                "../bench/native_kat.c"
+              ],
+              "expect": "PASS native KAT"
+            }
+          ]
+        },
+        {
+          "name": "soft",
+          "cwd": "ref",
+          "flags": [
+            "-DLOGN=9",
+            "-DFNDSA_SHAKE256X4=1",
+            "-DFNDSA_NEON=0",
+            "-ffunction-sections",
+            "-fdata-sections",
+            "-DFNDSA_AVX2=0",
+            "-DFNDSA_SSE2=0",
+            "-DBENCH_AVX=0",
+            "-mno-avx",
+            "-mno-avx2",
+            "-mno-avx512f",
+            "-mno-fma"
           ],
           "sources": [
             "codec.c",
@@ -127,10 +181,13 @@
             "-ffunction-sections",
             "-fdata-sections",
             "-DFNDSA_AVX2=0",
-            "-DFNDSA_SSE2=0",
-            "-fno-tree-vectorize",
-            "-fno-tree-slp-vectorize",
-            "-DBENCH_AVX=0"
+            "-DFNDSA_SSE2=1",
+            "-DBENCH_AVX=0",
+            "-msse2",
+            "-mno-avx",
+            "-mno-avx2",
+            "-mno-avx512f",
+            "-mno-fma"
           ],
           "sources": [
             "codec.c",
@@ -214,10 +271,65 @@
               "expect": "PASS native KAT"
             }
           ]
+        },
+        {
+          "name": "soft",
+          "cwd": "ref",
+          "flags": [
+            "-DLOGN=10",
+            "-DFNDSA_SHAKE256X4=1",
+            "-DFNDSA_NEON=0",
+            "-ffunction-sections",
+            "-fdata-sections",
+            "-DFNDSA_AVX2=0",
+            "-DFNDSA_SSE2=0",
+            "-DBENCH_AVX=0",
+            "-mno-avx",
+            "-mno-avx2",
+            "-mno-avx512f",
+            "-mno-fma"
+          ],
+          "sources": [
+            "codec.c",
+            "mq.c",
+            "sha3.c",
+            "sysrng.c",
+            "util.c",
+            "kgen.c",
+            "kgen_fxp.c",
+            "kgen_gauss.c",
+            "kgen_mp31.c",
+            "kgen_ntru.c",
+            "kgen_poly.c",
+            "kgen_zint31.c",
+            "sign.c",
+            "sign_core.c",
+            "sign_fpoly.c",
+            "sign_fpr.c",
+            "sign_sampler.c",
+            "vrfy.c"
+          ],
+          "extra_sources": [],
+          "libs": [
+            "-Wl,--gc-sections"
+          ],
+          "kat": [
+            {
+              "name": "kat",
+              "sources": [
+                "../bench/native_kat.c"
+              ],
+              "expect": "PASS native KAT"
+            }
+          ]
         }
       ]
     }
   ],
   "dependencies": [],
-  "notes": "The paper primary implementation is VecFalcon. The actual repository API is pre-standard FN-DSA derived from c-fn-dsa, not the original round-3 Falcon API. Empty context and RAW message mode are used; current hash_to_point binds the hashed public key/context unless the legacy 0xFF mode is requested, which is not used here. Signatures are padded fixed-size 666/1280, not compressed variable-size wire format. Exact unpadded statistics parse the compressed polynomial after the 1-byte header and 40-byte nonce, independently checked by comp_decode. Scalar ref disables FNDSA_AVX2 and FNDSA_SSE2 and uses the supported software binary64 implementation; opt AVX2 uses its native SIMD/FPU path. FNDSA_SHAKE256X4=1 matches the artifact Makefile in both. Public C API accepts only encoded keys and exposes no expanded signing state. Native known-answer routines and fixtures are included unchanged through a bench wrapper; only the targeted degree KAT is invoked, avoiding the unrelated large native self-test suite. Important KAT limitation: the opt sampler changes seeded transcripts and its original run_tests comments out test_kat. The inherited full signing-transcript hash KAT fails for opt (first SHA3-256 c677b5dd... vs expected a32f07ba...). The scalar targeted signing KAT is required and passes. For opt, unchanged upstream keygen KATs, original-Falcon verification vectors and its enabled self-tests are required, followed by the fixed-seed cross-build checks. No expected hashes or assertions are modified; this incompatible inherited signing KAT is not reported as a passing test."
+  "notes": "The paper primary implementation is VecFalcon. The actual repository API is pre-standard FN-DSA derived from c-fn-dsa, not the original round-3 Falcon API. Empty context and RAW message mode are used; current hash_to_point binds the hashed public key/context unless the legacy 0xFF mode is requested, which is not used here. Signatures are padded fixed-size 666/1280, not compressed variable-size wire format. Exact unpadded statistics parse the compressed polynomial after the 1-byte header and 40-byte nonce, independently checked by comp_decode. Scalar ref disables FNDSA_AVX2 and FNDSA_SSE2 and uses the supported software binary64 implementation; opt AVX2 uses its native SIMD/FPU path. FNDSA_SHAKE256X4=1 matches the artifact Makefile in both. Public C API accepts only encoded keys and exposes no expanded signing state. Native known-answer routines and fixtures are included unchanged through a bench wrapper; only the targeted degree KAT is invoked, avoiding the unrelated large native self-test suite. Important KAT limitation: the opt sampler changes seeded transcripts and its original run_tests comments out test_kat. The inherited full signing-transcript hash KAT fails for opt (first SHA3-256 c677b5dd... vs expected a32f07ba...). The scalar targeted signing KAT is required and passes. For opt, unchanged upstream keygen KATs, original-Falcon verification vectors and its enabled self-tests are required, followed by the fixed-seed cross-build checks. No expected hashes or assertions are modified; this incompatible inherited signing KAT is not reported as a passing test. Revision 2026-11-10: c-fn-dsa is primary and VecFalcon backup. Main ref now uses upstream SSE2 hardware binary64 with AVX2 disabled; it contains SSE2 intrinsics and is not a pure-C portable double path. The source has no FALCON_FPNATIVE switch. Software binary64 is supplemental only. GCC -O3 -march=native plus backend-required options; byte keys, 32-byte messages, fresh key/sign/verify triples, 20 warmup triples and unchanged Dilithium timing files. Every backend pair cross-verifies; equality and first differences are recorded separately. Original local FULL mismatch evidence remains pending until the original vectors are inspected.",
+  "benchmark_role": "backup",
+  "key_seed_bytes": 40,
+  "equality_policy": "Record byte differences and first differing sample; require every ordered cross-verification pair. No universal backend equality promise is stated in the pinned documentation.",
+  "ref_backend": "Upstream SSE2 hardware binary64, FNDSA_AVX2=0, FNDSA_SSE2=1; not a pure-C no-intrinsics backend (none exists on x86 in this source)."
 }
