@@ -1,0 +1,14 @@
+$ /workspace/VecFalcon/bench/results/20261110T045801.603674Z/work/1024-ref/driver time 11
+META 1024 12289 1793 2305 1280
+KeyGen
+median: 36757967 cycles/ticks
+average: 45932669 cycles/ticks
+
+Sign
+median: 11980253 cycles/ticks
+average: 11991901 cycles/ticks
+
+Verify
+median: 103661 cycles/ticks
+average: 105804 cycles/ticks
+

@@ -1,0 +1,6 @@
+$ /workspace/VecFalcon/bench/results/20261110T045646.174431Z/work/512-ref/kat
+[9]..........PASS native KAT
+$ /workspace/VecFalcon/bench/results/20261110T045646.174431Z/work/512-avx2/kat
+[9]KAT-hash: wrong value:
+a: c677b5dd5432250fcaac76d517f838472c7e4d17238d1486b5feb3732f95689d
+b: a32f07baf6b7ff6bc7c3c4f8c638871ff8c4803b0e54bedb9363f5672011077b
